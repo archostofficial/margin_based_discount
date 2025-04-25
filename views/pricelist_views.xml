@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend the pricelist item form view -->
+    <record id="product_pricelist_item_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.pricelist.item.form.inherit.margin</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='fixed_price']" position="after">
+                <field name="apply_margin_limit" attrs="{'invisible': [('compute_price', 'not in', ['formula'])]}"/>
+                <field name="margin_percentage" attrs="{'invisible': [('apply_margin_limit', '=', False)], 'required': [('apply_margin_limit', '=', True)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Form view for the margin wizard -->
+    <record id="view_pricelist_margin_wizard_form" model="ir.ui.view">
+        <field name="name">pricelist.margin.wizard.form</field>
+        <field name="model">pricelist.margin.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Apply Minimum Margin">
+                <group>
+                    <field name="pricelist_id" readonly="1"/>
+                    <field name="margin_percentage"/>
+                    <field name="apply_to_all_items"/>
+                </group>
+                <footer>
+                    <button name="apply_margin" string="Apply" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the margin wizard -->
+    <record id="action_pricelist_margin_wizard" model="ir.actions.act_window">
+        <field name="name">Set Minimum Margin</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">pricelist.margin.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="product.model_product_pricelist"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <!-- Add a button to the pricelist form view -->
+    <record id="product_pricelist_view_form_inherit" model="ir.ui.view">
+        <field name="name">product.pricelist.form.inherit.margin</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[@class='oe_button_box']" position="inside">
+                <button name="%(action_pricelist_margin_wizard)d" 
+                        string="Set Minimum Margin" 
+                        type="action" 
+                        class="oe_stat_button"
+                        icon="fa-percent"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
